@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trump Enablers Tracker | v11.0</title>
+    <title>Trump Enablers Tracker | v12.0 (Functional Prototype)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -59,7 +59,7 @@
     <div class="app-container">
         <header class="app-header">
             <h1>Trump Enablers Tracker</h1>
-            <p class="subtitle">Corporate Accountability & Investor Watch Platform v11.0</p>
+            <p class="subtitle">Corporate Accountability & Investor Watch Platform v12.0</p>
         </header>
 
         <main class="container">
@@ -153,7 +153,6 @@ class TrumpEnablersTracker {
     }
 
     getStructuredData() {
-        // DISCLAIMER: The donation data below is illustrative. Source links are placeholders.
         const FAKE_SOURCE_URL = "https://www.fec.gov/data/advanced/";
         const internationalData = {
             trumpApproval: { Germany: 18, Mexico: 8, Canada: 34, Netherlands: 22, UnitedKingdom: 25, France: 20, Japan: 30, Sweden: 15, Norway: 16, Switzerland: 20 },
@@ -210,39 +209,32 @@ class TrumpEnablersTracker {
         document.getElementById('pensionSearchInput')?.addEventListener('input', (e) => this.renderPensionSearch(e.target.value));
         document.getElementById('generateContent')?.addEventListener('click', () => this.generateContent());
         ['corporate', 'individual', 'foreign'].forEach(type => {
-            document.getElementById(`${type}Filter`)?.addEventListener('change', () => this.filterAndRender(type));
+            document.getElementById(`${type}Filter`)?.addEventListener('change', () => this.renderAllTabs());
         });
     }
 
     renderAllTabs() {
-        this.filterAndRender('corporate');
-        this.filterAndRender('individual');
-        this.filterAndRender('foreign');
+        this.renderFilteredTab('corporate', 'corporateDonors', 'corporateFilter');
+        this.renderFilteredTab('individual', 'individualDonors', 'individualFilter');
+        this.renderFilteredTab('foreign', 'foreignCompanies', 'foreignFilter');
         this.renderPensionSearch('');
     }
     
-    filterAndRender(type) {
-        const filterEl = document.getElementById(`${type}Filter`);
-        if (!filterEl) return;
-        const filterValue = filterEl.value;
-        const dataKey = this.getDonorTypeKey(type);
-        let filteredData = this.data[dataKey];
+    renderFilteredTab(gridId, dataKey, filterId) {
+        const grid = document.getElementById(`${gridId}Grid`);
+        const filterValue = document.getElementById(filterId).value;
+        if (!grid) return;
 
+        let filteredData = this.data[dataKey];
         if (filterValue !== 'all') {
             filteredData = this.data[dataKey].filter(donor => 
                 donor.donations.some(d => d.type === filterValue)
             );
         }
-        this.renderTab(`${type}Grid`, filteredData, this.createDonorCard);
-    }
-    
-    renderTab(gridId, items, cardCreator) {
-        const grid = document.getElementById(gridId);
-        if (grid) {
-            grid.innerHTML = items.length > 0 
-                ? items.map(item => cardCreator.call(this, item)).join('')
-                : `<p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">No donors match the selected filter.</p>`;
-        }
+        
+        grid.innerHTML = filteredData.length > 0 
+            ? filteredData.map(item => this.createDonorCard(item)).join('')
+            : `<p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">No donors match the selected filter.</p>`;
     }
     
     renderPensionSearch(query) {
@@ -253,26 +245,25 @@ class TrumpEnablersTracker {
         const funds = Object.entries(this.data.internationalData.investors);
         const filteredFunds = query ? funds.filter(([key, fund]) => fund.name.toLowerCase().includes(searchTerm) || fund.country.toLowerCase().includes(searchTerm)) : funds;
 
-        if (filteredFunds.length === 0) {
-            grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">No matching funds found.</p>`;
-            return;
-        }
-        grid.innerHTML = filteredFunds.map(([key, fund]) => {
-            const holdings = this.data.corporateDonors.filter(c => c.foreignInvestors.some(fi => fi.key === key));
-            return this.createPensionCard(fund, holdings);
-        }).join('');
+        grid.innerHTML = filteredFunds.length > 0 
+            ? filteredFunds.map(([key, fund]) => this.createPensionCard(fund, key)).join('')
+            : `<p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">No matching funds found.</p>`;
     }
 
     createDonorCard(donor) {
-        const details = [ { label: 'Category', value: donor.sector || donor.companies || donor.parentCountry }, { label: 'Donations to GOP & Pro-Trump Groups', value: this.formatDonationList(donor.donations) } ];
-        return this.createCard({ title: donor.name, details: details });
+        return this.createCard({
+            title: donor.name,
+            details: [ { label: 'Category', value: donor.sector || donor.companies || donor.parentCountry }, { label: 'Donations to GOP & Pro-Trump Groups', value: this.formatDonationList(donor.donations) } ]
+        });
     }
 
-    createPensionCard(fund, holdings) {
-        const approval = this.data.internationalData.trumpApproval[fund.country] || 'N/A';
+    createPensionCard(fund, fundKey) {
+        const holdings = this.data.corporateDonors.filter(c => c.foreignInvestors.some(fi => fi.key === fundKey));
         const holdingsHTML = holdings.length > 0 ? this.formatDonationList(holdings.flatMap(h => h.donations.map(d => ({...d, recipient: `${h.name} ➞ ${d.recipient}` })))) : '<ul><li>No holdings tracked among these donors.</li></ul>';
-        const details = [ { label: 'Fund Type', value: fund.type }, { label: 'Home Country', value: `${fund.country} (Trump Approval: ${approval}%)` }, { label: 'Holdings in Pro-GOP Donors', value: holdingsHTML } ];
-        return this.createCard({ title: fund.name, details: details });
+        return this.createCard({
+            title: fund.name,
+            details: [ { label: 'Fund Type', value: fund.type }, { label: 'Home Country', value: `${fund.country} (Trump Approval: ${this.data.internationalData.trumpApproval[fund.country] || 'N/A'}%)` }, { label: 'Holdings in Pro-GOP Donors', value: holdingsHTML } ]
+        });
     }
     
     createCard({ title, details }) {
@@ -285,9 +276,8 @@ class TrumpEnablersTracker {
         const country = document.getElementById('targetCountry').value;
         if (!subjectValue || !country) { alert("Please select a subject and a target country."); return; }
 
-        const [key, donorTypeKey] = subjectValue.split('|');
-        const donor = this.data[donorTypeKey]?.find(d => d.key === key);
-        
+        const [key, dataKey] = subjectValue.split('|');
+        const donor = this.data[dataKey]?.find(d => d.key === key);
         if (!donor) { console.error(`Could not find donor with key: ${key}`); return; }
 
         const templates = this.getContentTemplates(donor, country);
@@ -303,35 +293,22 @@ class TrumpEnablersTracker {
         const reason = countryReason[country] || "his controversial policies.";
         const postJan6Total = this.getPostJan6Donations(donor.donations);
         const mostRecent = this.getMostRecentDonation(donor.donations);
-
         const thread = [
-            {
-                postNumber: 1,
-                content: `1/ Why is ${donor.name} funding a political movement unpopular in its key markets? They donated to pro-GOP PACs while operating in ${country}, where Trump's approval is just ${approval}% [1], largely ${reason} [2]`,
-                imageSuggestion: `A split image: Left side shows the ${donor.name} logo. Right side shows the flag of ${country} with "${approval}%" stamped over it in red.`
-            },
-            {
-                postNumber: 2,
-                content: `2/ Since Jan 6th, 2021, ${donor.name} has directed $${this.formatMoney(postJan6Total)} to these groups [3]. The most recent was $${this.formatMoney(mostRecent.amount)} to the ${mostRecent.recipient} on ${mostRecent.date} [4].`,
-                imageSuggestion: `A simple, bold graphic or chart showing a timeline of donations since January 2021, highlighting the most recent one.`
-            },
-            {
-                postNumber: 3,
-                content: `3/ This financial support for a political movement seen as a threat to democratic norms risks ${donor.name}'s reputation and international business. Is this responsible corporate governance?\n\n#${donor.name.replace(/\s/g, '')} #CorporateAccountability`,
-                imageSuggestion: `A compelling question in bold text over a blurred background of a stock market ticker.`
-            }
+            { post: `1/ Why is ${donor.name} funding a political movement unpopular in its key markets? They donated to pro-GOP PACs while operating in ${country}, where Trump's approval is just ${approval}% [1], largely ${reason} [2]`, image: `A split image: Left side shows the ${donor.name} logo. Right side shows the flag of ${country} with "${approval}%" stamped over it in red.` },
+            { post: `2/ Since Jan 6th, 2021, ${donor.name} has directed $${this.formatMoney(postJan6Total)} to these groups [3]. The most recent was $${this.formatMoney(mostRecent.amount)} to the ${mostRecent.recipient} on ${mostRecent.date} [4].`, image: `A simple, bold graphic or chart showing a timeline of donations since January 2021, highlighting the most recent one.` },
+            { post: `3/ This financial support for a political movement seen as a threat to democratic norms risks ${donor.name}'s reputation and international business. Is this responsible corporate governance?\n\n#${donor.name.replace(/\s/g, '')} #CorporateAccountability`, image: `A compelling question in bold text over a blurred background of a stock market ticker.` }
         ];
         const instagram = {
-            caption: `A direct conflict: ${donor.name} has donated **$${this.formatMoney(postJan6Total)}** to pro-GOP political groups since Jan 6, 2021.\n\nMeanwhile, a significant portion of their business relies on countries like ${country}, where Trump's policies on trade and international relations are deeply unpopular (just ${approval}% approval).\n\nDoes this align with their corporate values and responsibilities to international stakeholders? It's time to ask.\n\n#CorporateAccountability #${donor.name.replace(/\s/g, '')} #BusinessRisk #ESG`,
-            imageSuggestion: `Create a carousel post:\n1. Title card: "${donor.name}: A Conflict of Interest".\n2. Infographic: Map highlighting ${country} with a low approval rating vs. a money bag representing donations.\n3. Call to Action: "Should companies put international partnerships over partisan politics? Discuss below."`
+            caption: `A direct conflict: ${donor.name} has donated **$${this.formatMoney(postJan6Total)}** to pro-GOP political groups since Jan 6, 2021.\n\nMeanwhile, a significant portion of their business relies on countries like ${country}, where Trump's policies on trade and international relations are deeply unpopular (just ${approval}% approval).\n\nDoes this align with their corporate values? #CorporateAccountability #${donor.name.replace(/\s/g, '')} #BusinessRisk #ESG`,
+            image: `Create a carousel post:\n1. Title card: "${donor.name}: A Conflict of Interest".\n2. Infographic: Map highlighting ${country} with a low approval rating vs. a money bag representing donations.\n3. Call to Action: "Should companies put international partnerships over partisan politics? Discuss below."`
         };
         const videoScript = {
             title: `The Contradiction of ${donor.name}`,
             scenes: [
-                { duration: 4, visuals: `Fast-paced montage: Gleaming shot of the company's product or HQ, quick cut to a controversial image of Trump at a rally. Glitch effect transition.`, subtitle: `Why is ${donor.name} risking its global reputation?` },
-                { duration: 7, visuals: `Animated graphic. Left: Flag of ${country} with a low approval meter: "${approval}%". Right: Bullet points for reasons of dislike appear (e.g., "Trade Tariffs", "NATO Stance").`, subtitle: `In ${country}, a key market, Trump's approval is just ${approval}%. Citizens are concerned about his stance on trade and alliances.` },
-                { duration: 6, visuals: `A calendar flips rapidly from Jan 6, 2021. A money counter animates on screen, quickly rising to show the total donation amount.`, subtitle: `Yet, since Jan 6th, they've donated over $${this.formatMoney(postJan6Total)} to groups supporting him.` },
-                { duration: 3, visuals: `Final shot: The company's logo with a large red question mark stamped over it. Text 'Demand Accountability' fades in.`, subtitle: "It's time to ask them why." }
+                { visuals: `Fast-paced montage: Gleaming shot of the company's product or HQ, quick cut to a controversial image of Trump at a rally. Glitch effect transition.`, subtitle: `Why is ${donor.name} risking its global reputation?` },
+                { visuals: `Animated graphic. Left: Flag of ${country} with a low approval meter: "${approval}%". Right: Bullet points for reasons of dislike appear (e.g., "Trade Tariffs", "NATO Stance").`, subtitle: `In ${country}, a key market, Trump's approval is just ${approval}%. Citizens are concerned about his stance on trade and alliances.` },
+                { visuals: `A calendar flips rapidly from Jan 6, 2021. A money counter animates on screen, quickly rising to show the total donation amount.`, subtitle: `Yet, since Jan 6th, they've donated over $${this.formatMoney(postJan6Total)} to groups supporting him.` },
+                { visuals: `Final shot: The company's logo with a large red question mark stamped over it. Text 'Demand Accountability' fades in.`, subtitle: "It's time to ask them why." }
             ]
         };
         return { thread, instagram, videoScript };
@@ -339,16 +316,16 @@ class TrumpEnablersTracker {
 
     renderThread(containerId, threadData) {
         const container = document.getElementById(containerId);
-        if (container) container.innerHTML = threadData.map(post => `<div class="thread-post"><div class="thread-post-header">Post ${post.postNumber}/${threadData.length}</div><div class="thread-post-body">
-            <textarea class="form-control" rows="5">${post.content.replace(/ \[\d+\]/g, '')}</textarea>
-            <div class="image-suggestion"><strong>Image Suggestion:</strong> ${post.imageSuggestion}</div></div></div>`).join('');
+        if (container) container.innerHTML = threadData.map((post, i) => `<div class="thread-post"><div class="thread-post-header">Post ${i + 1}/${threadData.length}</div><div class="thread-post-body">
+            <textarea class="form-control" rows="5">${post.post.replace(/ \[\d+\]/g, '')}</textarea>
+            <div class="image-suggestion"><strong>Image Suggestion:</strong> ${post.image}</div></div></div>`).join('');
     }
     
     renderInstagramPost(containerId, postData) {
         const container = document.getElementById(containerId);
         if (container) container.innerHTML = `<div class="thread-post"><div class="thread-post-header">Instagram Post</div><div class="thread-post-body">
             <label class="form-label">Caption</label><textarea class="form-control" rows="6">${postData.caption}</textarea>
-            <div class="image-suggestion"><strong>Visual Suggestion:</strong> ${postData.imageSuggestion}</div></div></div>`;
+            <div class="image-suggestion"><strong>Visual Suggestion:</strong> ${postData.image}</div></div></div>`;
     }
 
     renderVideoScript(containerId, scriptData) {
@@ -356,7 +333,7 @@ class TrumpEnablersTracker {
         if (!container) return;
         let scriptHTML = `<h4>Vertical Video Script: ${scriptData.title}</h4>`;
         scriptData.scenes.forEach((scene, index) => {
-            scriptHTML += `<div class="thread-post"><div class="thread-post-header">Scene ${index + 1} (${scene.duration}s)</div><div class="thread-post-body">
+            scriptHTML += `<div class="thread-post"><div class="thread-post-header">Scene ${index + 1}</div><div class="thread-post-body">
                 <label class="form-label">Visuals (AI Prompt)</label><textarea class="form-control" rows="3">${scene.visuals}</textarea>
                 <label class="form-label" style="margin-top: 12px;">Subtitle Text</label><textarea class="form-control" rows="2">${scene.subtitle}</textarea>
             </div></div>`;
@@ -365,10 +342,6 @@ class TrumpEnablersTracker {
     }
 
     // UTILITY & EVENT HANDLER FUNCTIONS
-    getDonorTypeKey(typeLabel) {
-        const map = { "Corporate Donors": "corporateDonors", "Individual Donors": "individualDonors", "Foreign Companies": "foreignCompanies"};
-        return map[typeLabel];
-    }
     switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
