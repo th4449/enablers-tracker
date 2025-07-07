@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trump Enablers Tracker | v8.0</title>
+    <title>Trump Enablers Tracker | v9.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -17,13 +17,13 @@
         }
         body { margin: 0; padding: 0; font-family: var(--font-family-base); background-color: var(--color-background); color: var(--color-text); }
         .container { width: 100%; max-width: 1400px; margin: auto; padding: 0 var(--space-24); }
-        h3 { font-weight: 700; margin: 0; }
+        h1,h2,h3,h4 { font-weight: 700; margin: 0; }
         .app-header { padding: var(--space-24) 0; border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-32); text-align: center; }
         .tab-nav { display: flex; justify-content: center; gap: var(--space-8); margin-bottom: var(--space-24); border-bottom: 1px solid var(--color-border); overflow-x: auto; }
-        .tab-btn { padding: var(--space-12) var(--space-16); border: none; background: transparent; color: var(--color-text-secondary); font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s ease; font-weight: 500;}
-        .tab-btn.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
-        .tab-pane { display: none; animation: fadeIn 0.5s ease; }
-        .tab-pane.active { display: block; }
+        .tab-btn, .platform-btn { padding: var(--space-12) var(--space-16); border: none; background: transparent; color: var(--color-text-secondary); font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s ease; font-weight: 500;}
+        .tab-btn.active, .platform-btn.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+        .tab-pane, .platform-pane { display: none; animation: fadeIn 0.5s ease; }
+        .tab-pane.active, .platform-pane.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .controls-bar { display: flex; justify-content: flex-end; align-items: center; margin-bottom: var(--space-16); gap: var(--space-16); }
         .data-grid { display: grid; gap: var(--space-20); grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
@@ -35,19 +35,31 @@
         .donation-list { list-style: none; padding: 0; margin: 0; font-size: 0.85rem; max-height: 175px; overflow-y: auto; padding-right: 8px;}
         .donation-list li { display: flex; justify-content: space-between; align-items: center; padding: var(--space-8) 0; border-bottom: 1px solid var(--color-border);}
         .donation-list li:last-child { border-bottom: none; }
+        .recipient-info { flex-grow: 1; }
         .recipient-name { font-weight: 500; }
         .recipient-type { font-size: 0.75rem; color: var(--color-text-secondary); }
-        .donation-amount { font-weight: 700; color: var(--color-primary); white-space: nowrap; padding-left: 16px; }
-        .form-control { padding: var(--space-8) var(--space-12); border-radius: var(--radius-base); border: 1px solid var(--color-border); background-color: #2c2e2f; color: var(--color-text); font-size: 14px; }
-        .source-link { text-decoration: none; font-size: 1rem; margin-left: 8px; opacity: 0.5; transition: opacity 0.2s ease; }
-        .source-link:hover { opacity: 1; }
+        .donation-details { display: flex; align-items: center; }
+        .donation-amount { font-weight: 700; color: var(--color-primary); white-space: nowrap; }
+        .source-link { text-decoration: none; color: var(--color-text-secondary); margin-left: 12px; opacity: 0.6; transition: opacity 0.2s ease; }
+        .source-link:hover { opacity: 1; color: var(--color-primary); }
+        .form-control, .btn { padding: var(--space-12); border-radius: var(--radius-base); border: 1px solid var(--color-border); background-color: #2c2e2f; color: var(--color-text); font-size: 14px; width: 100%; box-sizing: border-box;}
+        .btn { background-color: var(--color-primary); color: #111; font-weight: bold; cursor: pointer; width: auto; }
+        /* Content Generator */
+        .content-generator { background-color: var(--color-surface); padding: var(--space-24); border-radius: var(--radius-lg); }
+        .generator-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-16); margin: var(--space-24) 0; align-items: end; }
+        .platform-tabs { display: flex; gap: var(--space-8); margin-bottom: var(--space-24); border-bottom: 1px solid var(--color-border); }
+        textarea.form-control { resize: vertical; min-height: 120px; line-height: 1.6; }
+        .thread-post { border: 1px solid var(--color-border); border-radius: var(--radius-base); margin-bottom: var(--space-16); background-color: var(--color-surface-2); }
+        .thread-post-header { background-color: #333536; padding: var(--space-8) var(--space-12); font-weight: bold; border-bottom: 1px solid var(--color-border); }
+        .thread-post-body { padding: var(--space-12); }
+        .image-suggestion { background-color: rgba(0, 169, 255, 0.05); border: 1px solid rgba(0, 169, 255, 0.2); padding: var(--space-12); margin-top: var(--space-12); border-radius: var(--radius-base); font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="app-container">
         <header class="app-header">
             <h1>Trump Enablers Tracker</h1>
-            <p class="subtitle">Corporate Accountability & Investor Watch Platform v8.0</p>
+            <p class="subtitle">Corporate Accountability & Investor Watch Platform v9.0</p>
         </header>
 
         <main class="container">
@@ -56,30 +68,53 @@
                 <button class="tab-btn" data-tab="individual">Individual Donors</button>
                 <button class="tab-btn" data-tab="foreign">Foreign Companies</button>
                 <button class="tab-btn" data-tab="pension">Pension & Fund Watch</button>
+                <button class="tab-btn" data-tab="content">Content Generator</button>
             </nav>
 
             <div class="tab-content">
                 <div id="corporate-tab" class="tab-pane active">
-                    <div class="controls-bar">
-                        <select class="form-control" id="corporateFilter"><option value="all">All Donation Types</option></select>
-                    </div>
+                    <div class="controls-bar"><select class="form-control" id="corporateFilter"><option value="all">All Donation Types</option></select></div>
                     <div class="data-grid" id="corporateGrid"></div>
                 </div>
                 <div id="individual-tab" class="tab-pane">
-                     <div class="controls-bar">
-                        <select class="form-control" id="individualFilter"><option value="all">All Donation Types</option></select>
-                    </div>
+                     <div class="controls-bar"><select class="form-control" id="individualFilter"><option value="all">All Donation Types</option></select></div>
                     <div class="data-grid" id="individualGrid"></div>
                 </div>
                 <div id="foreign-tab" class="tab-pane">
-                     <div class="controls-bar">
-                        <select class="form-control" id="foreignFilter"><option value="all">All Donation Types</option></select>
-                    </div>
+                     <div class="controls-bar"><select class="form-control" id="foreignFilter"><option value="all">All Donation Types</option></select></div>
                     <div class="data-grid" id="foreignGrid"></div>
                 </div>
                 <div id="pension-tab" class="tab-pane">
-                    <input type="text" id="pensionSearchInput" class="form-control" placeholder="Search for a pension fund or country (e.g., Norway, Japan, Pension)..." style="margin-bottom: 24px;">
+                    <input type="text" id="pensionSearchInput" class="form-control" placeholder="Search for a pension fund or country..." style="margin-bottom: 24px;">
                     <div class="data-grid" id="pensionGrid"></div>
+                </div>
+                <div id="content-tab" class="tab-pane">
+                     <div class="content-generator">
+                        <h3>Content Generator</h3>
+                        <div class="platform-tabs">
+                            <button class="platform-btn active" data-platform="twitter">Twitter/X</button>
+                            <button class="platform-btn" data-platform="bluesky">BlueSky</button>
+                            <button class="platform-btn" data-platform="instagram">Instagram</button>
+                            <button class="platform-btn" data-platform="vertical">Vertical Video</button>
+                        </div>
+                        <div class="generator-controls">
+                            <div class="form-group">
+                                <label class="form-label">Content Subject</label>
+                                <select id="contentSubject" class="form-control"><option value="">Select a Subject</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Target Country</label>
+                                <select id="targetCountry" class="form-control"><option value="">Select Country</option></select>
+                            </div>
+                            <button class="btn" id="generateContent">Generate Content</button>
+                        </div>
+                        <div class="platform-content">
+                            <div id="twitter-content" class="platform-pane active"></div>
+                            <div id="bluesky-content" class="platform-pane"></div>
+                            <div id="instagram-content" class="platform-pane"></div>
+                            <div id="vertical-content" class="platform-pane"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -90,18 +125,19 @@ class TrumpEnablersTracker {
     constructor() {
         this.data = this.getStructuredData();
         this.donationTypes = this.getUniqueDonationTypes();
+        this.currentPlatform = 'twitter';
         this.init();
     }
 
     init() {
         this.setupEventListeners();
         this.populateFilters();
+        this.populateContentGeneratorDropdowns();
         this.renderAllTabs();
     }
     
     getUniqueDonationTypes() {
-        const allDonations = [...this.data.corporateDonors, ...this.data.individualDonors, ...this.data.foreignCompanies].flatMap(d => d.donations.map(don => don.type));
-        return [...new Set(allDonations)].sort();
+        return [...new Set([...this.data.corporateDonors, ...this.data.individualDonors, ...this.data.foreignCompanies].flatMap(d => d.donations.map(don => don.type)))].sort();
     }
 
     populateFilters() {
@@ -111,10 +147,39 @@ class TrumpEnablersTracker {
         });
     }
 
+    populateContentGeneratorDropdowns() {
+        const subjectSelect = document.getElementById('contentSubject');
+        const countrySelect = document.getElementById('targetCountry');
+        
+        const categories = {
+            "Corporate Donors": this.data.corporateDonors,
+            "Individual Donors": this.data.individualDonors,
+            "Foreign Companies": this.data.foreignCompanies,
+        };
+
+        for (const [groupLabel, items] of Object.entries(categories)) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = groupLabel;
+            items.forEach(item => {
+                const option = new Option(item.name, `${item.key}|${this.getDonorTypeKey(groupLabel)}`);
+                optgroup.appendChild(option);
+            });
+            subjectSelect.appendChild(optgroup);
+        }
+
+        Object.keys(this.data.internationalData.trumpApproval).forEach(country => {
+            const approval = this.data.internationalData.trumpApproval[country];
+            const option = new Option(`${country} (${approval}% approval)`, country);
+            countrySelect.add(option);
+        });
+    }
+
     getStructuredData() {
-        // DISCLAIMER: The data below is illustrative, based on publicly available information patterns for demonstrating application functionality. It is not a formal financial audit. Source links are placeholders.
+        // DISCLAIMER: The data below is illustrative. Source links are placeholders.
         const FAKE_SOURCE_URL = "https://www.fec.gov/data/advanced/";
         const internationalData = {
+            trumpApproval: { Germany: 18, Mexico: 8, Canada: 34, Netherlands: 22, UnitedKingdom: 25, France: 20, Japan: 30, Sweden: 15, Norway: 16, Switzerland: 20 },
+             countryReason: { Germany: "due to concerns over his stance on NATO, trade tariffs, and climate change.", Netherlands: "over disagreements on international trade policies and climate agreements.", Canada: "over trade disputes and diplomatic tensions during his presidency.", UnitedKingdom: "due to disagreements on international policy and his controversial statements.", Japan: "over concerns about regional stability and trade protectionism."},
             investors: {
                 norwayPension: { name: "Norwegian Pension Fund", country: "Norway", type: "Sovereign Wealth Fund" },
                 japanGPIF: { name: "Japan GPIF", country: "Japan", type: "Pension Fund" },
@@ -122,10 +187,9 @@ class TrumpEnablersTracker {
                 ukUSS: { name: "UK Universities Superannuation Scheme", country: "UnitedKingdom", type: "Pension Fund" },
                 dutchABP: { name: "ABP", country: "Netherlands", type: "Pension Fund" },
                 swissNB: { name: "Swiss National Bank", country: "Switzerland", type: "Sovereign Wealth Fund" },
-                cppib: { name: "Canada Pension Plan Investment Board", country: "Canada", type: "Pension Fund"}
+                cppib: { name: "Canada Pension Plan", country: "Canada", type: "Pension Fund"}
             }
         };
-
         const donors = {
             corporateDonors: [
                 { key: 'pfizer', name: "Pfizer", sector: "Pharmaceuticals", donations: [{ amount: 500000, date: "2025-06-10", recipient: "RNC", type: "Party Committee", sourceURL: FAKE_SOURCE_URL }], foreignInvestors: [{ key: 'japanGPIF' }, { key: 'ukUSS' }] },
@@ -156,7 +220,7 @@ class TrumpEnablersTracker {
                 { key: 'ing', name: "ING Group", parentCountry: "Netherlands", donations: [{ amount: 150000, date: "2025-05-05", recipient: "RNC", type: "Party Committee", sourceURL: FAKE_SOURCE_URL }] },
                 { key: 'gsk', name: "GSK plc", parentCountry: "United Kingdom", donations: [{ amount: 300000, date: "2025-02-18", recipient: "PhRMA GOP PAC", type: "PAC", sourceURL: FAKE_SOURCE_URL }] },
                 { key: 'ubs', name: "UBS Group AG", parentCountry: "Switzerland", donations: [{ amount: 400000, date: "2025-06-01", recipient: "RNC", type: "Party Committee", sourceURL: FAKE_SOURCE_URL }] },
-                { key: 'sanofi', name: "Sanofi", parentCountry: "France", donations: [{ amount: 200000, date: "2025-05-12", recipient: "BIO GOP PAC", type: "PAC", sourceURL: FAKE_SOURCE_URL }] },
+                { key: 'sanofi', name: "Sanofi", parentCountry: "France", donations: [{ amount: 200000, date: "2025-05-12", recipient: "BIO GOP PAC", type: "PAC", sourceURL: FAKE_SOURCE_URL }] }
             ]
         };
         return { ...donors, internationalData };
@@ -164,10 +228,12 @@ class TrumpEnablersTracker {
 
     setupEventListeners() {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab)));
+        document.querySelectorAll('.platform-btn').forEach(btn => btn.addEventListener('click', (e) => this.switchPlatform(e.target.dataset.platform)));
         document.getElementById('pensionSearchInput')?.addEventListener('input', (e) => this.renderPensionSearch(e.target.value));
-        document.getElementById('corporateFilter')?.addEventListener('change', () => this.filterAndRender('corporate'));
-        document.getElementById('individualFilter')?.addEventListener('change', () => this.filterAndRender('individual'));
-        document.getElementById('foreignFilter')?.addEventListener('change', () => this.filterAndRender('foreign'));
+        document.getElementById('generateContent')?.addEventListener('click', () => this.generateContent());
+        ['corporate', 'individual', 'foreign'].forEach(type => {
+            document.getElementById(`${type}Filter`)?.addEventListener('change', () => this.filterAndRender(type));
+        });
     }
 
     renderAllTabs() {
@@ -178,14 +244,14 @@ class TrumpEnablersTracker {
     }
     
     filterAndRender(type) {
-        const filterValue = document.getElementById(`${type}Filter`).value;
-        const dataKey = type === 'foreign' ? 'foreignCompanies' : `${type}Donors`;
+        const filterEl = document.getElementById(`${type}Filter`);
+        if (!filterEl) return;
+        const filterValue = filterEl.value;
+        const dataKey = this.getDonorTypeKey(type);
         let filteredData = this.data[dataKey];
 
         if (filterValue !== 'all') {
-            filteredData = this.data[dataKey].filter(donor => 
-                donor.donations.some(d => d.type === filterValue)
-            );
+            filteredData = this.data[dataKey].filter(donor => donor.donations.some(d => d.type === filterValue));
         }
         this.renderTab(`${type}Grid`, filteredData, this.createDonorCard);
     }
@@ -205,10 +271,7 @@ class TrumpEnablersTracker {
         
         const searchTerm = query.toLowerCase();
         const funds = Object.entries(this.data.internationalData.investors);
-
-        const filteredFunds = query 
-            ? funds.filter(([key, fund]) => fund.name.toLowerCase().includes(searchTerm) || fund.country.toLowerCase().includes(searchTerm))
-            : funds;
+        const filteredFunds = query ? funds.filter(([key, fund]) => fund.name.toLowerCase().includes(searchTerm) || fund.country.toLowerCase().includes(searchTerm)) : funds;
 
         if (filteredFunds.length === 0) {
             grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">No matching funds found.</p>`;
@@ -224,20 +287,21 @@ class TrumpEnablersTracker {
     createDonorCard(donor) {
         const details = [
             { label: 'Category', value: donor.sector || donor.companies || donor.parentCountry },
-            { label: 'Donations', value: this.formatDonationList(donor.donations) }
+            { label: 'Donations to GOP & Pro-Trump Groups', value: this.formatDonationList(donor.donations) }
         ];
         return this.createCard({ title: donor.name, details: details });
     }
 
     createPensionCard(fund, holdings) {
+        const approval = this.data.internationalData.trumpApproval[fund.country];
         const holdingsHTML = holdings.length > 0
             ? this.formatDonationList(holdings.flatMap(h => h.donations.map(d => ({...d, recipient: `${h.name} ➞ ${d.recipient}` }))))
             : '<ul><li>No holdings tracked among these donors.</li></ul>';
 
         const details = [
             { label: 'Fund Type', value: fund.type },
-            { label: 'Home Country', value: fund.country },
-            { label: 'Holdings in GOP Donors', value: holdingsHTML }
+            { label: 'Home Country', value: `${fund.country} (Trump Approval: ${approval}%)` },
+            { label: 'Holdings in Pro-GOP Donors', value: holdingsHTML }
         ];
         return this.createCard({ title: fund.name, details: details });
     }
@@ -247,32 +311,120 @@ class TrumpEnablersTracker {
         return `<div class="data-card"><h3>${title}</h3><div class="details-grid">${detailsHTML}</div></div>`;
     }
 
-    formatDonationList(donations) {
-        if (!donations || donations.length === 0) return '<span>No tracked donations.</span>';
-        const sortedDonations = [...donations].sort((a,b) => new Date(b.date) - new Date(a.date));
-        return `<ul class="donation-list">${sortedDonations.map(d => `<li><div><div class="recipient-name">${d.recipient}</div><div class="recipient-type">${d.type} on ${d.date}</div></div><div class="donation-amount">${this.formatMoney(d.amount)}<a href="${d.sourceURL}" target="_blank" class="source-link" title="Verify Source">🔗</a></div></li>`).join('')}</ul>`;
+    generateContent() {
+        const subjectValue = document.getElementById('contentSubject').value;
+        const country = document.getElementById('targetCountry').value;
+        if (!subjectValue || !country) { alert("Please select a subject and a target country."); return; }
+
+        const [key, donorTypeKey] = subjectValue.split('|');
+        const donor = this.data[donorTypeKey].find(d => d.key === key);
+        
+        if (!donor) { console.error(`Could not find donor with key: ${key}`); return; }
+
+        const templates = this.getContentTemplates(donor, country);
+        this.renderThread('twitter-content', templates.thread);
+        this.renderThread('bluesky-content', templates.thread);
+        this.renderInstagramPost('instagram-content', templates.instagram);
+        this.renderVideoScript('vertical-content', templates.videoScript);
     }
     
-    formatMoney(amount) {
-        if (amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
-        if (amount >= 1000) return `$${(amount / 1000).toFixed(0)}K`;
-        return `$${amount}`;
+    getContentTemplates(donor, country) {
+        const { trumpApproval, countryReason } = this.data.internationalData;
+        const approval = trumpApproval[country];
+        const reason = countryReason[country] || "his controversial policies.";
+        const postJan6Total = this.getPostJan6Donations(donor.donations);
+        const mostRecent = this.getMostRecentDonation(donor.donations);
+
+        const thread = [
+            {
+                postNumber: 1,
+                content: `1/ Why is ${donor.name} funding a political movement unpopular in its key markets? They donated to pro-GOP PACs while operating in ${country}, where Trump's approval is just ${approval}% [1], largely ${reason} [2]`,
+                imageSuggestion: `A split image: Left side shows the ${donor.name} logo. Right side shows the flag of ${country} with "${approval}%" stamped over it in red.`
+            },
+            {
+                postNumber: 2,
+                content: `2/ Since Jan 6th, 2021, ${donor.name} has directed $${this.formatMoney(postJan6Total)} to these groups [3]. The most recent was $${this.formatMoney(mostRecent.amount)} to the ${mostRecent.recipient} on ${mostRecent.date} [4].`,
+                imageSuggestion: `A simple, bold graphic or chart showing a timeline of donations since January 2021, highlighting the most recent one.`
+            },
+            {
+                postNumber: 3,
+                content: `3/ This financial support for a political movement seen as a threat to democratic norms risks ${donor.name}'s reputation and international business. Is this responsible corporate governance?\n\n#${donor.name.replace(/\s/g, '')} #CorporateAccountability`,
+                imageSuggestion: `A compelling question in bold text over a blurred background of a stock market ticker.`
+            }
+        ];
+        const instagram = {
+            caption: `A direct conflict: ${donor.name} has donated **$${this.formatMoney(postJan6Total)}** to pro-GOP political groups since Jan 6, 2021.\n\nMeanwhile, a significant portion of their business relies on countries like ${country}, where Trump's policies on trade and international relations are deeply unpopular (just ${approval}% approval).\n\nDoes this align with their corporate values and responsibilities to international stakeholders? It's time to ask.\n\n#CorporateAccountability #${donor.name.replace(/\s/g, '')} #BusinessRisk #ESG`,
+            imageSuggestion: `Create a carousel post:\n1. Title card: "${donor.name}: A Conflict of Interest".\n2. Infographic: Map highlighting ${country} with a low approval rating vs. a money bag representing donations.\n3. Call to Action: "Should companies put international partnerships over partisan politics? Discuss below."`
+        };
+        const videoScript = {
+            title: `The Contradiction of ${donor.name}`,
+            scenes: [
+                { duration: 4, visuals: `Fast-paced montage: Gleaming shot of the company's product or HQ, quick cut to a controversial image of Trump at a rally. Glitch effect transition.`, subtitle: `Why is ${donor.name} risking its global reputation?` },
+                { duration: 7, visuals: `Animated graphic. Left: Flag of ${country} with a low approval meter: "${approval}%". Right: Bullet points for reasons of dislike appear (e.g., "Trade Tariffs", "NATO Stance").`, subtitle: `In ${country}, a key market, Trump's approval is just ${approval}%. Citizens are concerned about his stance on trade and alliances.` },
+                { duration: 6, visuals: `A calendar flips rapidly from Jan 6, 2021. A money counter animates on screen, quickly rising to show the total donation amount.`, subtitle: `Yet, since Jan 6th, they've donated over $${this.formatMoney(postJan6Total)} to groups supporting him.` },
+                { duration: 3, visuals: `Final shot: The company's logo with a large red question mark stamped over it. Text 'Demand Accountability' fades in.`, subtitle: "It's time to ask them why." }
+            ]
+        };
+        return { thread, instagram, videoScript };
     }
 
+    renderThread(containerId, threadData) {
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = threadData.map(post => `
+            <div class="thread-post"><div class="thread-post-header">Post ${post.postNumber}/${threadData.length}</div><div class="thread-post-body">
+            <textarea class="form-control" rows="5">${post.content.replace(/ \[\d+\]/g, '')}</textarea>
+            <div class="image-suggestion"><strong>Image Suggestion:</strong> ${post.imageSuggestion}</div></div></div>`).join('');
+    }
+    
+    renderInstagramPost(containerId, postData) {
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = `<div class="thread-post"><div class="thread-post-header">Instagram Post</div><div class="thread-post-body">
+            <label class="form-label">Caption</label><textarea class="form-control">${postData.caption}</textarea>
+            <div class="image-suggestion"><strong>Visual Suggestion:</strong> ${postData.imageSuggestion}</div></div></div>`;
+    }
+
+    renderVideoScript(containerId, scriptData) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        let scriptHTML = `<h4>Vertical Video Script: ${scriptData.title}</h4>`;
+        scriptData.scenes.forEach((scene, index) => {
+            scriptHTML += `<div class="thread-post"><div class="thread-post-header">Scene ${index + 1} (${scene.duration}s)</div><div class="thread-post-body">
+                <label class="form-label">Visuals (AI Prompt)</label><textarea class="form-control" rows="3">${scene.visuals}</textarea>
+                <label class="form-label" style="margin-top: 12px;">Subtitle Text</label><textarea class="form-control" rows="2">${scene.subtitle}</textarea>
+            </div></div>`;
+        });
+        container.innerHTML = scriptHTML;
+    }
+
+    // UTILITY & EVENT HANDLER FUNCTIONS
     switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
         document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
         document.getElementById(`${tabName}-tab`)?.classList.add('active');
     }
+    
+    switchPlatform(platformName) {
+        this.currentPlatform = platformName;
+        document.querySelectorAll('.platform-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`[data-platform="${platformName}"]`)?.classList.add('active');
+        document.querySelectorAll('.platform-pane').forEach(pane => pane.classList.remove('active'));
+        document.getElementById(`${platformName}-content`)?.classList.add('active');
+    }
+    
+    formatMoney(amount) { if (amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`; if (amount >= 1000) return `$${(amount / 1000).toFixed(0)}K`; return `$${amount}`; }
+    getMostRecentDonation(donations) { return [...donations].sort((a,b) => new Date(b.date) - new Date(a.date))[0]; }
+    getPostJan6Donations(donations) { return donations.filter(d => new Date(d.date) > new Date("2021-01-06")).reduce((sum, d) => sum + d.amount, 0); }
+    getDonorTypeKey(typeLabel) { return typeLabel.toLowerCase().replace(' ', ''); }
+    formatDonationList(donations) {
+        if (!donations || donations.length === 0) return '<span>No tracked donations.</span>';
+        const sortedDonations = [...donations].sort((a,b) => new Date(b.date) - new Date(a.date));
+        return `<ul class="donation-list">${sortedDonations.map(d => `<li><div class="recipient-info"><div class="recipient-name">${d.recipient}</div><div class="recipient-type">${d.type} on ${d.date}</div></div><div class="donation-details"><div class="donation-amount">${this.formatMoney(d.amount)}</div><a href="${d.sourceURL}" target="_blank" class="source-link" title="Verify Source">[🔗 Source]</a></div></li>`).join('')}</ul>`;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        window.enablersTracker = new TrumpEnablersTracker();
-    } catch (error) {
-        console.error('Failed to initialize application:', error);
-    }
+    try { window.enablersTracker = new TrumpEnablersTracker(); } catch (error) { console.error('Failed to initialize application:', error); }
 });
 </script>
 </body>
