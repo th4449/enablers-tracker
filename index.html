@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trump Enablers Tracker | v10.0</title>
+    <title>Trump Enablers Tracker | v11.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -59,7 +59,7 @@
     <div class="app-container">
         <header class="app-header">
             <h1>Trump Enablers Tracker</h1>
-            <p class="subtitle">Corporate Accountability & Investor Watch Platform v10.0</p>
+            <p class="subtitle">Corporate Accountability & Investor Watch Platform v11.0</p>
         </header>
 
         <main class="container">
@@ -119,8 +119,7 @@ class TrumpEnablersTracker {
     }
     
     getUniqueDonationTypes() {
-        const allDonations = [...this.data.corporateDonors, ...this.data.individualDonors, ...this.data.foreignCompanies].flatMap(d => d.donations.map(don => don.type));
-        return [...new Set(allDonations)].sort();
+        return [...new Set([...this.data.corporateDonors, ...this.data.individualDonors, ...this.data.foreignCompanies].flatMap(d => d.donations.map(don => don.type)))].sort();
     }
 
     populateFilters() {
@@ -135,17 +134,13 @@ class TrumpEnablersTracker {
         const countrySelect = document.getElementById('targetCountry');
         if (!subjectSelect || !countrySelect) return;
         
-        const categories = {
-            "Corporate Donors": this.data.corporateDonors,
-            "Individual Donors": this.data.individualDonors,
-            "Foreign Companies": this.data.foreignCompanies,
-        };
+        const categories = { "Corporate Donors": "corporateDonors", "Individual Donors": "individualDonors", "Foreign Companies": "foreignCompanies" };
 
-        for (const [groupLabel, items] of Object.entries(categories)) {
+        for (const [groupLabel, dataKey] of Object.entries(categories)) {
             const optgroup = document.createElement('optgroup');
             optgroup.label = groupLabel;
-            items.forEach(item => {
-                const option = new Option(item.name, `${item.key}|${this.getDonorTypeKey(groupLabel)}`);
+            this.data[dataKey].forEach(item => {
+                const option = new Option(item.name, `${item.key}|${dataKey}`);
                 optgroup.appendChild(option);
             });
             subjectSelect.appendChild(optgroup);
@@ -153,8 +148,7 @@ class TrumpEnablersTracker {
 
         Object.keys(this.data.internationalData.countryReason).forEach(country => {
             const approval = this.data.internationalData.trumpApproval[country];
-            const option = new Option(`${country} (${approval}% approval)`, country);
-            countrySelect.add(option);
+            countrySelect.add(new Option(`${country} (${approval}% approval)`, country));
         });
     }
 
@@ -231,7 +225,7 @@ class TrumpEnablersTracker {
         const filterEl = document.getElementById(`${type}Filter`);
         if (!filterEl) return;
         const filterValue = filterEl.value;
-        const dataKey = this.getDonorTypeKey(type, true);
+        const dataKey = this.getDonorTypeKey(type);
         let filteredData = this.data[dataKey];
 
         if (filterValue !== 'all') {
@@ -292,7 +286,7 @@ class TrumpEnablersTracker {
         if (!subjectValue || !country) { alert("Please select a subject and a target country."); return; }
 
         const [key, donorTypeKey] = subjectValue.split('|');
-        const donor = this.data[donorTypeKey].find(d => d.key === key);
+        const donor = this.data[donorTypeKey]?.find(d => d.key === key);
         
         if (!donor) { console.error(`Could not find donor with key: ${key}`); return; }
 
@@ -345,8 +339,7 @@ class TrumpEnablersTracker {
 
     renderThread(containerId, threadData) {
         const container = document.getElementById(containerId);
-        if (container) container.innerHTML = threadData.map(post => `
-            <div class="thread-post"><div class="thread-post-header">Post ${post.postNumber}/${threadData.length}</div><div class="thread-post-body">
+        if (container) container.innerHTML = threadData.map(post => `<div class="thread-post"><div class="thread-post-header">Post ${post.postNumber}/${threadData.length}</div><div class="thread-post-body">
             <textarea class="form-control" rows="5">${post.content.replace(/ \[\d+\]/g, '')}</textarea>
             <div class="image-suggestion"><strong>Image Suggestion:</strong> ${post.imageSuggestion}</div></div></div>`).join('');
     }
@@ -372,9 +365,9 @@ class TrumpEnablersTracker {
     }
 
     // UTILITY & EVENT HANDLER FUNCTIONS
-    getDonorTypeKey(typeLabel, forData = false) {
-        const map = { "Corporate Donors": "corporateDonors", "Individual Donors": "individualDonors", "Foreign Companies": "foreignCompanies", "corporate": "corporateDonors", "individual": "individualDonors", "foreign": "foreignCompanies" };
-        return map[typeLabel] || typeLabel;
+    getDonorTypeKey(typeLabel) {
+        const map = { "Corporate Donors": "corporateDonors", "Individual Donors": "individualDonors", "Foreign Companies": "foreignCompanies"};
+        return map[typeLabel];
     }
     switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
