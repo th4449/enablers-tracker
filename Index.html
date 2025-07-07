@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trump Enablers Tracker | v7.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --color-background: #111314; --color-surface: #1a1c1d; --color-surface-2: #242627;
+          --color-text: #e8e8e8; --color-text-secondary: #9a9b9c; --color-primary: #00a9ff;
+          --color-primary-hover: #33baff; --color-border: #333536; --color-error: #ff5459;
+          --color-warning: #ffb700; --font-family-base: "Inter", sans-serif;
+          --radius-base: 8px; --radius-lg: 12px;
+          --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-20: 20px; --space-24: 24px; --space-32: 32px;
+        }
+        body { margin: 0; padding: 0; font-family: var(--font-family-base); background-color: var(--color-background); color: var(--color-text); }
+        .container { width: 100%; max-width: 1400px; margin: auto; padding: 0 var(--space-24); }
+        h3 { font-weight: 700; margin: 0; }
+        .app-header { padding: var(--space-24) 0; border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-32); text-align: center; }
+        .tab-nav { display: flex; justify-content: center; gap: var(--space-8); margin-bottom: var(--space-24); border-bottom: 1px solid var(--color-border); overflow-x: auto; }
+        .tab-btn { padding: var(--space-12) var(--space-16); border: none; background: transparent; color: var(--color-text-secondary); font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s ease; font-weight: 500;}
+        .tab-btn.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+        .tab-pane { display: none; animation: fadeIn 0.5s ease; }
+        .tab-pane.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .controls-bar { display: flex; justify-content: flex-end; align-items: center; margin-bottom: var(--space-16); gap: var(--space-16); }
+        .data-grid { display: grid; gap: var(--space-20); grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+        .data-card { background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-20); display: flex; flex-direction: column; }
+        .data-card h3 { color: var(--color-primary); margin-bottom: var(--space-16); font-size: 1.1rem; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-12);}
+        .details-grid { display: grid; grid-template-columns: 120px 1fr; gap: var(--space-12) var(--space-16); align-items: start;}
+        .data-label { color: var(--color-text-secondary); font-weight: 500; font-size: 0.8rem; text-transform: uppercase;}
+        .data-value { font-weight: 400; font-size: 0.9rem; }
+        .donation-list { list-style: none; padding: 0; margin: 0; font-size: 0.85rem; max-height: 150px; overflow-y: auto; padding-right: 8px;}
+        .donation-list li { display: flex; justify-content: space-between; padding: var(--space-8) 0; border-bottom: 1px solid var(--color-border);}
+        .donation-list li:last-child { border-bottom: none; }
+        .recipient-name { font-weight: 500; }
+        .recipient-type { font-size: 0.75rem; color: var(--color-text-secondary); }
+        .donation-amount { font-weight: 700; color: var(--color-primary); white-space: nowrap; padding-left: 16px; }
+        .form-control { padding: var(--space-8) var(--space-12); border-radius: var(--radius-base); border: 1px solid var(--color-border); background-color: #2c2e2f; color: var(--color-text); font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Trump Enablers Tracker</h1>
+            <p class="subtitle">Corporate Accountability & Investor Watch Platform v7.0</p>
+        </header>
+
+        <main class="container">
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-tab="corporate">Corporate Donors</button>
+                <button class="tab-btn" data-tab="individual">Individual Donors</button>
+                <button class="tab-btn" data-tab="foreign">Foreign Companies</button>
+                <button class="tab-btn" data-tab="pension">Pension & Fund Watch</button>
+            </nav>
+
+            <div class="tab-content">
+                <div id="corporate-tab" class="tab-pane active">
+                    <div class="controls-bar">
+                        <select class="form-control" id="corporateFilter">
+                            <option value="all">All Donation Types</option>
+                        </select>
+                    </div>
+                    <div class="data-grid" id="corporateGrid"></div>
+                </div>
+                <div id="individual-tab" class="tab-pane">
+                     <div class="controls-bar">
+                        <select class="form-control" id="individualFilter">
+                            <option value="all">All Donation Types</option>
+                        </select>
+                    </div>
+                    <div class="data-grid" id="individualGrid"></div>
+                </div>
+                <div id="foreign-tab" class="tab-pane">
+                     <div class="controls-bar">
+                        <select class="form-control" id="foreignFilter">
+                            <option value="all">All Donation Types</option>
+                        </select>
+                    </div>
+                    <div class="data-grid" id="foreignGrid"></div>
+                </div>
+                <div id="pension-tab" class="tab-pane">
+                    <input type="text" id="pensionSearchInput" class="form-control" placeholder="Search for a pension fund or country (e.g., Norway, Japan, Pension)..." style="margin-bottom: 24px;">
+                    <div class="data-grid" id="pensionGrid"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+class TrumpEnablersTracker {
+    constructor() {
+        this.data = this.getStructuredData();
+        this.donationTypes = this.getUniqueDonationTypes();
+        this.init();
+    }
+
+    init() {
+        console.log('Initializing Tracker v7.0...');
+        this.setupEventListeners();
+        this.populateFilters();
+        this.renderAllTabs();
+        console.log('Application initialized successfully.');
+    }
+    
+    getUniqueDonationTypes() {
+        const allDonations = [
+            ...this.data.corporateDonors,
+            ...this.data.individualDonors,
+            ...this.data.foreignCompanies
+        ].flatMap(d => d.donations.map(don => don.type));
+        return [...new Set(allDonations)];
+    }
+
+    populateFilters() {
+        ['corporate', 'individual', 'foreign'].forEach(type => {
+            const select = document.getElementById(`${type}Filter`);
+            if (select) {
+                this.donationTypes.forEach(dtype => {
+                    const option = new Option(dtype, dtype);
+                    select.add(option);
+                });
+            }
+        });
+    }
+
+    getStructuredData() {
+        // DISCLAIMER: The donation data below is illustrative, based on publicly available information patterns for demonstrating application functionality. It is not a formal financial audit.
+        const internationalData = {
+            trumpApproval: { Germany: 18, Mexico: 8, Canada: 34, Netherlands: 22, UnitedKingdom: 25, France: 20, Japan: 30, Sweden: 15, Norway: 16, Switzerland: 20 },
+            investors: {
+                norwayPension: { name: "Norwegian Pension Fund", country: "Norway", type: "Sovereign Wealth Fund" },
+                japanGPIF: { name: "Japan GPIF", country: "Japan", type: "Pension Fund" },
+                swedenAP: { name: "Swedish AP Funds", country: "Sweden", type: "Pension Fund" },
+                ukUSS: { name: "UK Universities Superannuation Scheme", country: "UnitedKingdom", type: "Pension Fund" },
+                dutchABP: { name: "ABP", country: "Netherlands", type: "Pension Fund" },
+                swissNB: { name: "Swiss National Bank", country: "Switzerland", type: "Sovereign Wealth Fund" }
+            }
+        };
+
+        const donors = {
+            corporateDonors: [
+                { key: 'pfizer', name: "Pfizer", sector: "Pharmaceuticals", donations: [{ amount: 500000, date: "2025-06-10", recipient: "RNC", type: "Party Committee" }], foreignInvestors: [{ key: 'japanGPIF' }, { key: 'ukUSS' }] },
+                { key: 'jpmorgan', name: "JPMorgan Chase", sector: "Financial Services", donations: [{ amount: 2000000, date: "2025-05-20", recipient: "RNC", type: "Party Committee" }], foreignInvestors: [{ key: 'norwayPension' }] },
+                { key: 'boeing', name: "Boeing", sector: "Aerospace & Defense", donations: [{ amount: 1000000, date: "2025-03-15", recipient: "Trump Inaugural Committee", type: "Inaugural Committee" }], foreignInvestors: [{ key: 'norwayPension' }, { key: 'dutchABP' }] },
+                { key: 'chevron', name: "Chevron", sector: "Energy", donations: [{ amount: 1500000, date: "2025-06-01", recipient: "Senate Leadership Fund", type: "Super PAC" }], foreignInvestors: [{ key: 'swedenAP' }] },
+                { key: 'exxon', name: "ExxonMobil", sector: "Energy", donations: [{ amount: 2500000, date: "2025-04-15", recipient: "Trump Inaugural Committee", type: "Inaugural Committee" }, { amount: 1000000, date: "2025-05-01", recipient: "American Action Network", type: "Dark Money Group (501c4)"}], foreignInvestors: [{ key: 'swissNB' }] },
+                { key: 'walmart', name: "Walmart", sector: "Retail", donations: [{ amount: 750000, date: "2025-02-15", recipient: "NRCC", type: "Party Committee" }], foreignInvestors: [{ key: 'japanGPIF' }] },
+                { key: 'att', name: "AT&T", sector: "Telecommunications", donations: [{ amount: 600000, date: "2025-04-05", recipient: "House Majority PAC", type: "Super PAC" }], foreignInvestors: [] },
+                { key: 'ford', name: "Ford Motor Company", sector: "Automotive", donations: [{ amount: 250000, date: "2025-03-10", recipient: "NRSC", type: "Party Committee" }], foreignInvestors: [{ key: 'ukUSS' }] },
+                { key: 'ups', name: "UPS", sector: "Logistics", donations: [{ amount: 1000000, date: "2025-02-20", recipient: "RNC", type: "Party Committee" }], foreignInvestors: [{ key: 'dutchABP' }] },
+                { key: 'homedepot', name: "Home Depot", sector: "Retail", donations: [{ amount: 1200000, date: "2025-05-18", recipient: "Senate Leadership Fund", type: "Super PAC" }], foreignInvestors: [] }
+            ],
+            individualDonors: [
+                { key: 'mellon', name: "Timothy Mellon", companies: "Mellon banking family heir", donations: [{ amount: 25000000, date: "2025-05-15", recipient: "Make America Great Again Inc.", type: "Super PAC" }] },
+                { key: 'adelson', name: "Miriam Adelson", companies: "Las Vegas Sands", donations: [{ amount: 45000000, date: "2025-06-10", recipient: "Preserve America PAC", type: "Super PAC" }] },
+                { key: 'schwarzman', name: "Stephen Schwarzman", companies: "Blackstone Group", donations: [{ amount: 10000000, date: "2025-06-20", recipient: "Senate Leadership Fund", type: "Super PAC" }] },
+                { key: 'griffin', name: "Ken Griffin", companies: "Citadel LLC", donations: [{ amount: 15000000, date: "2025-04-30", recipient: "Congressional Leadership Fund", type: "Super PAC" }, { amount: 5000000, date: "2025-01-25", recipient: "Trump Inaugural Committee", type: "Inaugural Committee" }] },
+                { key: 'ellison', name: "Larry Ellison", companies: "Oracle Corporation", donations: [{ amount: 25000000, date: "2025-02-10", recipient: "Security is Strength PAC", type: "Super PAC" }] },
+            ],
+            foreignCompanies: [
+                { key: 'bat', name: "British American Tobacco", parentCountry: "UnitedKingdom", donations: [{ amount: 750000, date: "2025-01-30", recipient: "RNC", type: "Party Committee" }] },
+                { key: 'bayer', name: "Bayer AG", parentCountry: "Germany", donations: [{ amount: 500000, date: "2025-04-10", recipient: "NRSC", type: "Party Committee" }] },
+                { key: 'basf', name: "BASF", parentCountry: "Germany", donations: [{ amount: 250000, date: "2025-03-22", recipient: "NRCC", type: "Party Committee" }] },
+                { key: 'ing', name: "ING Group", parentCountry: "Netherlands", donations: [{ amount: 150000, date: "2025-05-05", recipient: "RNC", type: "Party Committee" }] },
+                { key: 'gsk', name: "GSK plc", parentCountry: "UnitedKingdom", donations: [{ amount: 300000, date: "2025-02-18", recipient: "PhRMA GOP PAC", type: "PAC" }] },
+                { key: 'ubs', name: "UBS Group AG", parentCountry: "Switzerland", donations: [{ amount: 400000, date: "2025-06-01", recipient: "RNC", type: "Party Committee" }] },
+                { key: 'sanofi', name: "Sanofi", parentCountry: "France", donations: [{ amount: 200000, date: "2025-05-12", recipient: "BIO GOP PAC", type: "PAC" }] }
+            ]
+        };
+        return { ...donors, internationalData };
+    }
+
+    setupEventListeners() {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab)));
+        document.getElementById('pensionSearchInput')?.addEventListener('input', (e) => this.renderPensionSearch(e.target.value));
+        document.getElementById('corporateFilter')?.addEventListener('change', () => this.filterAndRender('corporate'));
+        document.getElementById('individualFilter')?.addEventListener('change', () => this.filterAndRender('individual'));
+        document.getElementById('foreignFilter')?.addEventListener('change', () => this.filterAndRender('foreign'));
+    }
+
+    renderAllTabs() {
+        this.filterAndRender('corporate');
+        this.filterAndRender('individual');
+        this.filterAndRender('foreign');
+        this.renderPensionSearch('');
+    }
+    
+    filterAndRender(type) {
+        const filterValue = document.getElementById(`${type}Filter`).value;
+        const dataKey = type === 'foreign' ? 'foreignCompanies' : `${type}Donors`;
+        let filteredData = this.data[dataKey];
+
+        if (filterValue !== 'all') {
+            filteredData = this.data[dataKey].filter(donor => 
+                donor.donations.some(d => d.type === filterValue)
+            );
+        }
+        this.renderTab(`${type}Grid`, filteredData, this.createDonorCard);
+    }
+    
+    renderTab(gridId, items, cardCreator) {
+        const grid = document.getElementById(gridId);
+        if (grid) {
+            if (items.length > 0) {
+                 grid.innerHTML = items.map(item => cardCreator.call(this, item)).join('');
+            } else {
+                 grid.innerHTML = `<p style="color: var(--color-text-secondary); grid-column: 1 / -1; text-align: center;">No donors match the selected filter.</p>`;
+            }
+        }
+    }
+    
+    renderPensionSearch(query) {
+        const grid = document.getElementById('pensionGrid');
+        if (!grid) return;
+        
+        const searchTerm = query.toLowerCase();
+        const funds = Object.entries(this.data.internationalData.investors);
+
+        const filteredFunds = query 
+            ? funds.filter(([key, fund]) => fund.name.toLowerCase().includes(searchTerm) || fund.country.toLowerCase().includes(searchTerm))
+            : funds;
+
+        if (filteredFunds.length === 0) {
+            grid.innerHTML = `<p style="color: var(--color-text-secondary); grid-column: 1 / -1; text-align: center;">No matching funds found.</p>`;
+            return;
+        }
+
+        grid.innerHTML = filteredFunds.map(([key, fund]) => {
+            const holdings = this.data.corporateDonors.filter(c => c.foreignInvestors.some(fi => fi.key === key));
+            return this.createPensionCard(fund, holdings);
+        }).join('');
+    }
+
+    createDonorCard(donor) {
+        const details = [
+            { label: 'Category', value: donor.sector || donor.companies || donor.parentCountry },
+            { label: 'Donations', value: this.formatDonationList(donor.donations) }
+        ];
+        return this.createCard({ title: donor.name, details: details });
+    }
+
+    createPensionCard(fund, holdings) {
+        const approval = this.data.internationalData.trumpApproval[fund.country];
+        const holdingsHTML = holdings.length > 0
+            ? this.formatDonationList(holdings.flatMap(h => h.donations.map(d => ({...d, recipient: `${h.name} ➞ ${d.recipient}` }))))
+            : '<ul><li>No holdings tracked among these donors.</li></ul>';
+
+        const details = [
+            { label: 'Fund Type', value: fund.type },
+            { label: 'Home Country', value: `${fund.country} (Trump Approval: ${approval}%)` },
+            { label: 'Holdings in GOP Donors', value: holdingsHTML }
+        ];
+        return this.createCard({ title: fund.name, details: details });
+    }
+    
+    createCard({ title, details }) {
+        let detailsHTML = details.map(d => `<div class="data-label">${d.label}</div><div class="data-value">${d.value}</div>`).join('');
+        return `<div class="data-card"><h3>${title}</h3><div class="details-grid">${detailsHTML}</div></div>`;
+    }
+
+    formatDonationList(donations) {
+        if (!donations || donations.length === 0) return '<span>No tracked donations.</span>';
+        const sortedDonations = [...donations].sort((a,b) => new Date(b.date) - new Date(a.date));
+        return `<ul class="donation-list">${sortedDonations.map(d => `<li><div><div class="recipient-name">${d.recipient}</div><div class="recipient-type">${d.type} on ${d.date}</div></div><div class="donation-amount">${this.formatMoney(d.amount)}</div></li>`).join('')}</ul>`;
+    }
+    
+    formatMoney(amount) {
+        if (amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
+        if (amount >= 1000) return `$${(amount / 1000).toFixed(0)}K`;
+        return `$${amount}`;
+    }
+
+    switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+        document.getElementById(`${tabName}-tab`)?.classList.add('active');
+    }
+    
+    log(type, message) {
+        console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        window.enablersTracker = new TrumpEnablersTracker();
+    } catch (error) {
+        console.error('Failed to initialize application:', error);
+        document.body.innerHTML = `<h1>Application Failed to Load</h1><p>An error occurred. Please check the browser console.</p>`;
+    }
+});
+</script>
+</body>
+</html>
